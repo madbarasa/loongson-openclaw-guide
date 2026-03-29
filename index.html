@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>龙芯3A5000 mini PC + OpenClaw 部署指南</title>
+    <style>
+        :root {
+            --primary: #E60012;
+            --secondary: #FFD700;
+            --bg: #f5f5f5;
+            --card-bg: #fff;
+            --text: #333;
+            --code-bg: #2d2d2d;
+            --code-text: #f8f8f2;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff4444 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        header p { font-size: 1.2rem; opacity: 0.9; }
+        .badge {
+            display: inline-block;
+            background: var(--secondary);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .hero-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .section h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary);
+        }
+        .section h3 {
+            color: #555;
+            font-size: 1.3rem;
+            margin: 25px 0 15px;
+        }
+        ul, ol { margin: 15px 0 15px 30px; }
+        li { margin: 10px 0; }
+        p { margin: 15px 0; }
+        .step {
+            background: #f9f9f9;
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        code {
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            font-size: 0.9em;
+        }
+        .cmd {
+            color: #ff6b6b;
+        }
+        .comment {
+            color: #888;
+            font-style: italic;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: var(--primary);
+            color: white;
+        }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .spec-item {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .spec-item strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 5px;
+        }
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🐉 龙芯3A5000 mini PC + OpenClaw 完全指南</h1>
+            <p>从硬件到软件，一步步打造基于国产CPU的智能助手平台</p>
+            <div style="margin-top: 20px;">
+                <span class="badge">龙芯3A5000</span>
+                <span class="badge">LoongArch</span>
+                <span class="badge">OpenClaw</span>
+                <span class="badge">GitHub Pages</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 简介 -->
+        <div class="section">
+            <h2>📖 项目简介</h2>
+            <img src="https://via.placeholder.com/1200x400/e60012/ffffff?text=龙芯3A5000+mini+PC+%2B+OpenClaw" alt="龙芯mini PC" class="hero-image">
+            <p>本项目将介绍如何使用基于<strong>龙芯3A5000处理器</strong>的mini PC，搭建完整的OpenClaw智能助手环境，并将Web界面部署到GitHub Pages，实现远程访问和控制。</p>
+        </div>
+
+        <!-- 硬件准备 -->
+        <div class="section">
+            <h2>💻 硬件准备</h2>
+            <h3>龙芯3A5000 mini PC 规格</h3>
+            <div class="specs">
+                <div class="spec-item">
+                    <strong>处理器</strong>
+                    龙芯3A5000 (4核, 主频2.3-2.5GHz)
+                </div>
+                <div class="spec-item">
+                    <strong>架构</strong>
+                    LoongArch (64位)
+                </div>
+                <div class="spec-item">
+                    <strong>内存</strong>
+                    DDR4 3200 (建议≥8GB)
+                </div>
+                <div class="spec-item">
+                    <strong>TDP</strong>
+                    35W
+                </div>
+                <div class="spec-item">
+                    <strong>封装</strong>
+                    BGA1211 (带锡球)
+                </div>
+                <div class="spec-item">
+                    <strong>存储</strong>
+                    eMMC/SATA/NVMe (建议≥128GB)
+                </div>
+            </div>
+            <div class="info">
+                <strong>💡 提示</strong> 龙芯3A5000是真正的国产自主CPU，支持完整的Linux发行版，可以运行Node.js等现代开发环境。
+            </div>
+        </div>
+
+        <!-- 系统安装 -->
+        <div class="section">
+            <h2>🖥️ 系统安装</h2>
+            <h3>1. 安装 LoongArch 架构的 Linux 系统</h3>
+            <p>推荐使用 <strong>Deepin 龙芯版</strong> 或 <strong>UOS 龙芯版</strong>，这些系统已针对LoongArch优化：</p>
+            <pre><code># 下载 Deepin LoongArch 镜像
+wget https://cdimage.deepin.com/loongarch/
+
+# 制作启动U盘（在x86电脑上）
+sudo dd if=deepin-loongarch.iso of=/dev/sdX bs=4M status=progress
+
+# 插入U盘，启动mini PC，按提示安装系统</code></pre>
+
+            <h3>2. 基础环境配置</h3>
+            <pre><code><span class="comment"># 更新系统</span>
+sudo apt update && sudo apt upgrade -y
+
+<span class="comment"># 安装基础工具</span>
+sudo apt install -y git curl wget build-essential python3 python3-pip
+
+<span class="comment"># 验证架构</span>
+uname -m
+# 应显示：loongarch64</code></pre>
+        </div>
+
+        <!-- Node.js 安装 -->
+        <div class="section">
+            <h2>📦 安装 Node.js</h2>
+            <p>OpenClaw 需要 Node.js 18+ 环境。LoongArch 架构需要单独下载适配版本：</p>
+            <pre><code><span class="comment"># 方法1：使用Nodesource（如有LoongArch仓库）</span>
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+<span class="comment"># 方法2：手动下载预编译二进制</span>
+cd /tmp
+wget https://nodejs.org/dist/v20.11.1/node-v20.11.1-linux-loongarch64.tar.xz
+tar -xf node-v20.11.1-linux-loongarch64.tar.xz
+sudo mv node-v20.11.1-linux-loongarch64 /opt/nodejs
+sudo ln -s /opt/nodejs/bin/node /usr/local/bin/node
+sudo ln -s /opt/nodejs/bin/npm /usr/local/bin/npm
+
+<span class="comment"># 验证安装</span>
+node --version  # 应显示 v20.x.x
+npm --version</code></pre>
+
+            <div class="warning">
+                <strong>⚠️ 注意</strong> 如果官方没有LoongArch预编译版本，可能需要从源码编译Node.js，这会消耗较长时间（1-2小时）。
+            </div>
+        </div>
+
+        <!-- 安装 OpenClaw -->
+        <div class="section">
+            <h2>🤖 安装 OpenClaw</h2>
+            <pre><code><span class="comment"># 全局安装 OpenClaw</span>
+sudo npm install -g openclaw
+
+<span class="comment"># 验证安装</span>
+openclaw --version
+
+<span class="comment"># 初始化 OpenClaw 配置</span>
+openclaw init
+
+<span class="comment"># 启动 OpenClaw 服务</span>
+openclaw gateway start</code></pre>
+
+            <div class="success">
+                <strong>✅ 成功</strong> 如果看到 "Gateway started"，说明 OpenClaw 已正常运行。
+            </div>
+
+            <h3>配置 OpenClaw</h3>
+            <p>编辑配置文件 <code>~/.openclaw/config.json</code>，根据需要调整：</p>
+            <pre><code>{
+  "gateway": {
+    "port": 8080,
+    "token": "your-secret-token",
+    "logLevel": "info"
+  },
+  "plugins": {
+    "lark": true,
+    "wecom": false
+  }
+}</code></pre>
+        </div>
+
+        <!-- 创建 OpenClaw 项目 -->
+        <div class="section">
+            <h2>🗂️ 创建 OpenClaw 项目</h2>
+            <pre><code><span class="comment"># 创建项目目录</span>
+mkdir ~/my-openclaw && cd ~/my-openclaw
+
+<span class="comment"># 初始化项目结构</span>
+openclaw project init
+
+<span class="comment"># 查看项目文件</span>
+tree ~/.openclaw
+# 应该看到：
+# ~/.openclaw/
+# ├── AGENTS.md
+# ├── SOUL.md
+# ├── USER.md
+# ├── MEMORY.md
+# ├── HEARTBEAT.md
+# ├── TOOLS.md
+# ├── skills/
+# └── workspace/</code></pre>
+
+            <div class="info">
+                <strong>📝 提示</strong> 首次运行会提示你设置身份信息，按照向导完成即可。
+            </div>
+        </div>
+
+        <!-- 测试连接 -->
+        <div class="section">
+            <h2>🧪 测试连接</h2>
+            <p>打开浏览器，访问：</p>
+            <pre><code>http://你的龙芯miniPC的IP:8080</code></pre>
+            <p>如果看到 OpenClaw 的欢迎页面，说明服务正常运行。</p>
+
+            <h3>配置反向代理（可选，方便访问）</h3>
+            <pre><code><span class="comment"># 使用 Nginx 反向代理</span>
+sudo apt install -y nginx
+
+sudo tee /etc/nginx/sites-available/openclaw << 'EOF'
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
+}
+EOF
+
+sudo ln -s /etc/nginx/sites-available/openclaw /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx</code></pre>
+        </div>
+
+        <!-- 部署到 GitHub Pages -->
+        <div class="section">
+            <h2>🚀 部署到 GitHub Pages</h2>
+            <p>将你的 OpenClaw 项目网页化，部署到 GitHub Pages，实现公网访问。</p>
+
+            <h3>1. 准备 GitHub 仓库</h3>
+            <ol>
+                <li>登录 GitHub，创建新仓库 <code>用户名.github.io</code>（替换<用户名>为你的 GitHub 用户名）</li>
+                <li>或创建普通仓库 <code>openclaw-dashboard</code></li>
+                <li>克隆仓库到龙芯mini PC：
+                    <pre><code>git clone https://github.com/你的用户名/仓库名.git
+cd 仓库名</code></pre>
+                </li>
+            </ol>
+
+            <h3>2. 创建静态网页</h3>
+            <p>在 OpenClaw 项目下创建网页文件（例如 <code>dashboard.html</code>），内容可以是：</p>
+            <pre><code><span class="comment"># 简单示例：显示OpenClaw状态</span>
+cat > ~/my-openclaw/dashboard.html << 'EOF'
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;OpenClaw Status&lt;/title&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;style&gt;
+        body { font-family: sans-serif; padding: 20px; }
+        .status { color: green; font-weight: bold; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;OpenClaw 运行状态&lt;/h1&gt;
+    &lt;p&gt;服务状态：&lt;span class="status"&gt;✅ 运行中&lt;/span&gt;&lt;/p&gt;
+    &lt;p&gt;访问时间：&lt;span id="time"&gt;&lt;/span&gt;&lt;/p&gt;
+    &lt;script&gt;
+        document.getElementById('time').textContent = new Date().toLocaleString();
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF</code></pre>
+
+            <h3>3. 配置 GitHub Pages</h3>
+            <pre><code><span class="comment"># 将网页文件复制到仓库</span>
+cp ~/my-openclaw/dashboard.html ~/仓库名/
+cd ~/仓库名
+
+<span class="comment"># 初始化git（如果还没有）</span>
+git init
+git add .
+git commit -m "Initial: OpenClaw Dashboard"
+git branch -M main
+git remote add origin https://github.com/你的用户名/仓库名.git
+git push -u origin main
+
+<span class="comment"># 在GitHub网页设置Pages</span>
+<span class="comment"># Settings → Pages → Source: main branch /root folder</span>
+<span class="comment"># 保存后，访问：https://你的用户名.github.io/仓库名/</span></code></pre>
+
+            <div class="success">
+                <strong>🎉 完成！</strong> 你的 OpenClaw 状态页面现在可以通过 GitHub Pages 公网访问了。
+            </div>
+        </div>
+
+        <!-- 进阶：自动更新 -->
+        <div class="section">
+            <h2>🔄 进阶：自动更新网页</h2>
+            <p>可以通过 GitHub Actions 自动更新网页内容，例如每5分钟抓取 OpenClaw 日志并更新：</p>
+
+            <pre><code><span class="comment"># 在仓库中创建 .github/workflows/update.yml</span>
+cat > .github/workflows/update.yml << 'EOF'
+name: Update Dashboard
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # 每5分钟
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fetch OpenClaw status
+        run: |
+          # 这里可以调用你的OpenClaw API获取状态
+          echo "Last updated: $(date)" > status.txt
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Auto update: $(date)" || echo "No changes"
+          git push
+EOF</code></pre>
+
+            <p>这样你的 GitHub Pages 网页就会自动保持最新状态。</p>
+        </div>
+
+        <!-- 总结 -->
+        <div class="section">
+            <h2>📝 总结</h2>
+            <ul>
+                <li>✅ 使用龙芯3A5000 mini PC 搭建硬件平台</li>
+                <li>✅ 安装 LoongArch 架构的 Linux 系统</li>
+                <li>✅ 部署 Node.js 环境</li>
+                <li>✅ 安装并运行 OpenClaw</li>
+                <li>✅ 创建网页展示界面</li>
+                <li>✅ 部署到 GitHub Pages 实现公网访问</li>
+            </ul>
+
+            <div class="info">
+                <strong>🌐 参考资料</strong><br>
+                • OpenClaw 官方文档：https://docs.openclaw.ai<br>
+                • 龙芯社区：https://github.com/loongson<br>
+                • GitHub Pages 指南：https://docs.github.com/pages
+            </div>
+        </div>
+
+        <!-- 故障排除 -->
+        <div class="section">
+            <h2>⚠️ 故障排除</h2>
+            <table>
+                <tr>
+                    <th>问题</th>
+                    <th>解决方案</th>
+                </tr>
+                <tr>
+                    <td>Node.js 无法安装</td>
+                    <td>从源码编译或寻找 LoongArch 社区维护的包</td>
+                </tr>
+                <tr>
+                    <td>OpenClaw 启动失败</td>
+                    <td>检查 <code>~/.openclaw/logs/</code> 查看错误日志</td>
+                </tr>
+                <tr>
+                    <td>GitHub Pages 404</td>
+                    <td>确认仓库设置中 Pages 分支和文件夹正确</td>
+                </tr>
+                <tr>
+                    <td>网页无法访问</td>
+                    <td>检查防火墙是否开放 80/443 端口</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>📄 本教程由 OpenClaw 生成 | 基于龙芯3A5000 打造国产化智能助手平台</p>
+            <p>开源协议：MIT | 最后更新：<span id="update-time"></span></p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('update-time').textContent = new Date().toLocaleDateString('zh-CN');
+    </script>
+</body>
+</html>
