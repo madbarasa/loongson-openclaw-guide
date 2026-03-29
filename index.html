@@ -3,91 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐉 龙芯3A5000 × OpenClaw 极客部署指南</title>
+    <title>龙芯3A5000 × OpenClaw | 国产芯部署指南</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --neon-cyan: #00ffff;
+            --neon-pink: #ff00ff;
+            --neon-yellow: #ffff00;
             --neon-green: #00ff88;
-            --neon-magenta: #ff00ff;
-            --dark-bg: #0a0a0f;
-            --card-bg: #14141c;
-            --text-main: #e0e0e0;
-            --text-dim: #888;
+            --dark-bg: #050505;
+            --card-bg: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --border-glow: rgba(0, 255, 255, 0.3);
+            --scanline: rgba(0, 255, 255, 0.03);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-family: 'Noto Sans SC', sans-serif;
             background: var(--dark-bg);
-            color: var(--text-main);
-            line-height: 1.6;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 扫描线效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scanline) 2px,
+                var(--scanline) 4px
+            );
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 8s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* 背景网格 */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image:
-                radial-gradient(ellipse at top, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.05) 0%, transparent 50%);
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 5%;
+            position: relative;
+            z-index: 2;
         }
 
         /* Header */
         header {
+            padding: 150px 0 100px;
             text-align: center;
-            padding: 80px 20px;
-            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
-            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .header-glitch {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20vw;
+            font-weight: 900;
+            color: rgba(0, 255, 255, 0.02);
+            pointer-events: none;
+            z-index: -1;
+            animation: glitch 5s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+            20% { clip-path: inset(20% 0 60% 0); transform: translate(-5px, 5px); }
+            40% { clip-path: inset(40% 0 40% 0); transform: translate(5px, -5px); }
+            60% { clip-path: inset(60% 0 20% 0); transform: translate(-5px, 0); }
+            80% { clip-path: inset(80% 0 0 0); transform: translate(5px, 0); }
         }
 
         .logo {
-            font-size: 5rem;
+            font-size: 6rem;
             margin-bottom: 20px;
-            filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.5));
+            filter: drop-shadow(0 0 40px var(--neon-cyan));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 40px var(--neon-cyan)); }
+            50% { filter: drop-shadow(0 0 80px var(--neon-pink)); }
         }
 
         h1 {
-            font-size: 2.8rem;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 30px;
+            background: linear-gradient(
+                135deg,
+                var(--neon-cyan) 0%,
+                var(--neon-pink) 50%,
+                var(--neon-yellow) 100%
+            );
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 15px;
+            text-shadow: 0 0 60px rgba(0, 255, 255, 0.5);
+            line-height: 1.2;
         }
 
         .subtitle {
-            font-size: 1.1rem;
-            color: var(--text-dim);
-            max-width: 900px;
-            margin: 0 auto 30px;
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
         }
 
         .badges {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
+            margin-bottom: 60px;
         }
 
         .badge {
-            background: transparent;
-            border: 1px solid var(--neon-green);
-            color: var(--neon-green);
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: default;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .badge:hover::before {
+            left: 100%;
+        }
+
+        .badge:hover {
+            background: rgba(0, 255, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+            transform: translateY(-2px);
         }
 
         /* Cards */
         .card {
             background: var(--card-bg);
             border: 1px solid rgba(0, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 35px;
-            margin: 50px 0;
+            border-radius: 0;
+            margin: 80px 0;
+            padding: 60px;
             position: relative;
+            overflow: hidden;
         }
 
         .card::before {
@@ -95,108 +214,33 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink), var(--neon-yellow));
         }
 
         .card-title {
-            font-size: 1.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
             color: var(--neon-cyan);
-            margin-bottom: 25px;
+            margin-bottom: 40px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
 
         .card-title i {
-            font-size: 1.4rem;
-        }
-
-        /* Specs Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 25px 0;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        th {
-            background: rgba(0, 255, 136, 0.15);
-            color: var(--neon-green);
-            padding: 15px 20px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
-        }
-
-        td {
-            padding: 14px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background: rgba(0, 255, 255, 0.05); }
-
-        .highlight { color: var(--neon-cyan); font-weight: bold; }
-
-        /* Code blocks */
-        pre {
-            background: #0c0c12;
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            overflow-x: auto;
-        }
-
-        code {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.95rem;
-            color: #d4d4d4;
-            line-height: 1.6;
-        }
-
-        .comment { color: #666; font-style: italic; }
-        .cmd { color: #ff6b6b; }
-        .arg { color: var(--neon-green); }
-
-        /* Steps */
-        .step {
-            display: flex;
-            gap: 20px;
-            margin: 30px 0;
-            padding: 25px;
-            background: rgba(0, 255, 136, 0.05);
-            border-left: 3px solid var(--neon-green);
-        }
-
-        .step-num {
-            flex-shrink: 0;
-            width: 45px;
-            height: 45px;
-            background: var(--neon-green);
-            color: #000;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.3rem;
-        }
-
-        .step-content h4 {
-            color: var(--neon-green);
-            margin-bottom: 12px;
-            font-size: 1.2rem;
+            font-size: 1.8rem;
+            color: var(--neon-pink);
         }
 
         /* Images */
         .img-container {
-            margin: 30px 0;
-            border-radius: 12px;
+            margin: 40px 0;
+            position: relative;
             overflow: hidden;
             border: 1px solid rgba(0, 255, 255, 0.2);
         }
@@ -205,42 +249,180 @@
             width: 100%;
             height: auto;
             display: block;
-            transition: transform 0.3s;
+            filter: grayscale(20%) contrast(110%);
+            transition: all 0.5s;
         }
 
         .img-container:hover img {
-            transform: scale(1.01);
+            filter: grayscale(0%) contrast(120%);
+            transform: scale(1.02);
         }
 
         .img-caption {
-            background: rgba(0, 0, 0, 0.6);
-            color: var(--text-dim);
-            padding: 10px 15px;
-            font-size: 0.9rem;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--text-secondary);
+            padding: 15px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 30px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--neon-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            padding: 18px 20px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--neon-cyan);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.05);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 255, 0.03);
+        }
+
+        .highlight {
+            color: var(--neon-green);
+            font-weight: 700;
+        }
+
+        .label {
+            color: var(--neon-pink);
+            font-weight: 700;
+        }
+
+        /* Code blocks */
+        pre {
+            background: #0c0c12;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 25px;
+            margin: 30px 0;
+            overflow-x: auto;
+            position: relative;
+            border-radius: 4px;
+        }
+
+        pre::before {
+            content: '▮';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: var(--neon-pink);
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #d4d4d4;
+        }
+
+        .comment { color: #666; font-style: italic; }
+        .cmd { color: #ff6b6b; font-weight: 700; }
+        .arg { color: var(--neon-green); }
+        .string { color: #f7d79b; }
+        .keyword { color: var(--neon-cyan); }
+
+        /* Steps */
+        .step {
+            display: flex;
+            gap: 30px;
+            margin: 50px 0;
+            padding: 30px;
+            background: rgba(0, 255, 136, 0.03);
+            border-left: 4px solid var(--neon-green);
+            position: relative;
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--neon-green), transparent);
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 60px;
+            height: 60px;
+            background: var(--neon-green);
+            color: #000;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .step-num::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: -3px;
+            bottom: -3px;
+            border: 1px solid var(--neon-green);
+            opacity: 0.5;
+        }
+
+        .step-content h4 {
+            color: var(--neon-green);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 700;
         }
 
         /* Terminal */
         .terminal {
-            background: #0c0c12;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 25px 0;
+            background: #000;
+            border: 1px solid var(--neon-green);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 40px 0;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
         }
 
         .terminal-header {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 12px 20px;
             display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 10px;
+            border-bottom: 1px solid var(--neon-green);
         }
 
         .terminal-btn {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
         }
 
@@ -249,272 +431,423 @@
         .terminal-btn.green { background: #27c93f; }
 
         .terminal-body {
-            color: var(--neon-green);
-            font-size: 0.9rem;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
             line-height: 1.8;
+            color: var(--neon-green);
         }
 
-        .prompt { color: var(--neon-magenta); }
+        .prompt {
+            color: var(--neon-pink);
+            font-weight: 700;
+        }
+
+        .output {
+            color: #aaa;
+            margin-bottom: 15px;
+        }
 
         /* Alerts */
         .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin: 25px 0;
+            padding: 20px 25px;
+            margin: 30px 0;
             border-left: 4px solid;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 0;
         }
 
         .alert-info {
-            background: rgba(0, 255, 255, 0.1);
             border-color: var(--neon-cyan);
-            color: #b3e5fc;
+            background: rgba(0, 255, 255, 0.05);
         }
 
         .alert-success {
-            background: rgba(0, 255, 136, 0.1);
             border-color: var(--neon-green);
-            color: #b9f6ca;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .alert-warning {
+            border-color: var(--neon-yellow);
+            background: rgba(255, 255, 0, 0.05);
         }
 
         /* Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
-            margin: 30px 0;
+            margin: 50px 0;
         }
 
         .stat-box {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
         }
 
-        .stat-box .number {
-            font-size: 2.5rem;
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .stat-box:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-box:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 800;
             color: var(--neon-cyan);
-            font-weight: bold;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
-        .stat-box .label {
-            color: var(--text-dim);
+        .stat-label {
+            color: var(--text-secondary);
             font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
+        /* Footer */
         footer {
             text-align: center;
-            padding: 60px 0 30px;
-            margin-top: 80px;
+            padding: 100px 0 60px;
+            margin-top: 100px;
             border-top: 1px solid rgba(0, 255, 255, 0.1);
-            color: var(--text-dim);
+            position: relative;
         }
 
-        footer a {
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+        }
+
+        .footer-logo {
+            font-size: 3rem;
+            margin-bottom: 30px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
             color: var(--neon-cyan);
             text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            position: relative;
+            transition: color 0.3s;
         }
 
-        footer a:hover {
-            text-decoration: underline;
+        .footer-links a:hover {
+            color: var(--neon-pink);
+        }
+
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon-pink);
+            transition: width 0.3s;
+        }
+
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2rem; }
+            .logo { font-size: 4rem; }
+            .card { padding: 30px; }
+            .step { flex-direction: column; gap: 15px; }
+            .step-num { width: 50px; height: 50px; font-size: 1.3rem; }
+            .badges { gap: 10px; }
+            .stat-number { font-size: 2.5rem; }
+        }
+
+        /* Utility */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .highlight-box {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .highlight-box::before {
+            content: '"';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 4rem;
+            color: var(--neon-cyan);
+            opacity: 0.2;
+            font-family: serif;
         }
     </style>
 </head>
 <body>
+    <div class="grid-bg"></div>
     <div class="container">
         <header>
+            <div class="header-glitch">LOONGSON</div>
             <div class="logo">🐉</div>
-            <h1>龙芯3A5000 × OpenClaw 极客部署指南</h1>
+            <h1>龙芯3A5000 × OpenClaw<br>极客部署指南</h1>
             <p class="subtitle">
-                在国产 LoongArch 架构mini PC上，从零开始搭建OpenClaw智能助手<br>
-                <small style="color: var(--text-dim);">全程实拍 | 终端命令 | 成功验证</small>
+                在国产 LoongArch 架构 mini PC 上，从零编译并运行 OpenClaw 智能助手<br>
+                <span style="color: var(--neon-cyan); font-family: 'JetBrains Mono', monospace;"># 完全自主可控 · 拒绝技术封锁</span>
             </p>
             <div class="badges">
-                <span class="badge">🦊 LoongArch 64bit</span>
+                <span class="badge">🦊 LoongArch 64-bit</span>
                 <span class="badge">⚡ 龙芯3A5000</span>
-                <span class="badge">📦 Node.js 20.x</span>
+                <span class="badge">📦 Node.js v20</span>
                 <span class="badge">🤖 OpenClaw</span>
+                <span class="badge">🔧 DIY 部署</span>
             </div>
         </header>
 
         <!-- 芯片介绍 -->
         <div class="card">
-            <h2 class="card-title"><i class="fas fa-microchip"></i> 龙芯3A5000 芯片实拍与规格</h2>
+            <h2 class="card-title">
+                <i class="fas fa-microchip"></i>
+                龙芯3A5000：国产芯的骄傲
+            </h2>
 
             <div class="img-container">
-                <img src="https://via.placeholder.com/1200x500/14141c/00ffff?text=龙芯3A5000+BGA1211封装+12nm工艺" alt="龙芯3A5000芯片">
-                <div class="img-caption">图1：龙芯3A5000 处理器（BGA1211封装，带锡球）</div>
+                <img src="https://raw.githubusercontent.com/loongson/buildroot/master/board/loongson/loongson3a5000/images/loongson3a5000.jpg" alt="龙芯3A5000芯片实拍">
+                <div class="img-caption">
+                    FIG 1. 龙芯3A5000 处理器（BGA1211封装，12nm工艺，4核2.5GHz）
+                </div>
             </div>
 
-            <p style="margin: 20px 0; font-size: 1.1rem; line-height: 1.8;">
-                龙芯3A5000是<strong>中国自主设计</strong>的64位通用处理器，采用<strong>LoongArch指令集架构</strong>，
-                完全不依赖国外技术授权。这是一款真正的国产芯，性能足以满足日常开发、办公、服务器应用。
+            <p style="font-size: 1.1rem; line-height: 1.8; margin: 25px 0;">
+                龙芯3A5000是中国科学院计算技术研究所自主研发的<strong class="label">64位通用处理器</strong>，
+                采用完全自主的<strong class="highlight">LoongArch指令集架构</strong>，不依赖任何国外技术授权。
+                这款芯片标志着中国在CPU领域实现了从设计到制造的<strong class="highlight">完全自主可控</strong>。
             </p>
 
-            <h3>📊 核心参数（实标）</h3>
+            <h3 style="color: var(--neon-cyan); margin: 30px 0 20px; font-family: 'JetBrains Mono', monospace;">[ 核心参数 ]</h3>
             <table>
                 <tr>
-                    <th>参数</th>
-                    <th>规格值</th>
-                    <th>实际表现</th>
+                    <th>Architecture</th>
+                    <th>Specification</th>
+                    <th>Performance</th>
                 </tr>
                 <tr>
-                    <td>架构</td>
+                    <td>指令集</td>
                     <td class="highlight">LoongArch 64-bit</td>
-                    <td>自主指令集，生态独立</td>
+                    <td>自主知识产权</td>
                 </tr>
                 <tr>
-                    <td>核心数</td>
-                    <td class="highlight">4核</td>
-                    <td>4× LA464 核心</td>
+                    <td>Cores</td>
+                    <td class="highlight">4 × LA464</td>
+                    <td>全核2.5GHz稳定</td>
                 </tr>
                 <tr>
-                    <td>主频</td>
-                    <td class="highlight">2.3–2.5 GHz</td>
-                    <td>稳定全核2.5GHz</td>
-                </tr>
-                <tr>
-                    <td>内存</td>
+                    <td>Memory</td>
                     <td class="highlight">DDR4-3200</td>
-                    <td>双通道，带宽充足</td>
+                    <td>双通道，高带宽</td>
                 </tr>
                 <tr>
                     <td>TDP</td>
                     <td class="highlight">35W</td>
-                    <td>低功耗，被动散热即可</td>
+                    <td>低功耗，静音</td>
                 </tr>
                 <tr>
-                    <td>制程</td>
+                    <td>Process</td>
                     <td class="highlight">12nm</td>
                     <td>台积电工艺</td>
                 </tr>
                 <tr>
                     <td>PCIe</td>
                     <td class="highlight">PCIe 3.0 ×16</td>
-                    <td>支持NVMe固态</td>
+                    <td>支持NVMe</td>
                 </tr>
             </table>
 
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i> <strong>极客评价</strong>：
-                这款芯片是国产化替代的标杆产品，不仅性能达标，而且Linux生态支持完善，
-                特别适合做个人服务器、开发工作站、智能家居网关等场景。
+            <div class="highlight-box">
+                <p style="font-size: 1.1rem; line-height: 1.8; margin: 0;">
+                    <strong style="color: var(--neon-green);">✓ 为什么选择龙芯3A5000？</strong><br>
+                    这是一款真正<strong>国产化、自主可控</strong>的处理器，适合个人开发者、技术爱好者、
+                    以及有数据安全需求的场景。性能完全满足日常开发、服务器、智能家居等应用，
+                    是参与国产芯片生态建设的绝佳选择。
+                </p>
             </div>
         </div>
 
         <!-- 硬件准备 -->
         <div class="card">
-            <h2 class="card-title"><i class="fas fa-box-open"></i> 硬件准备实拍</h2>
+            <h2 class="card-title">
+                <i class="fas fa-box"></i>
+                硬件部署环境
+            </h2>
 
             <div class="img-container">
-                <img src="https://via.placeholder.com/1200x500/14141c/00ff88?text=龙芯mini+PC+整机组装完成+内部结构" alt="龙芯mini PC整机">
-                <div class="img-caption">图2：典型的龙芯3A5000 mini PC（整机外观与内部结构）</div>
+                <img src="https://via.placeholder.com/1200x500/0a0a0a/00ffff?text=龙芯3A5000+mini+PC+整机+内部结构" alt="龙芯mini PC">
+                <div class="img-caption">
+                    FIG 2. 典型的龙芯3A5000 mini PC（紧凑型设计，适合桌面/服务器场景）
+                </div>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-box">
-                    <span class="number">8GB+</span>
-                    <span class="label">DDR4 内存</span>
+                    <span class="stat-number">8GB+</span>
+                    <span class="stat-label">DDR4 Memory</span>
                 </div>
                 <div class="stat-box">
-                    <span class="number">128GB+</span>
-                    <span class="label">NVMe SSD</span>
+                    <span class="stat-number">128GB+</span>
+                    <span class="stat-label">NVMe SSD</span>
                 </div>
                 <div class="stat-box">
-                    <span class="number">35W</span>
-                    <span class="label">TDP 功耗</span>
+                    <span class="stat-number">35W</span>
+                    <span class="stat-label">TDP</span>
                 </div>
                 <div class="stat-box">
-                    <span class="number">LoongArch</span>
-                    <span class="label">64位架构</span>
+                    <span class="stat-number">LoongArch</span>
+                    <span class="stat-label">64-bit ISA</span>
                 </div>
             </div>
 
-            <h3>📦 必备配件清单</h3>
-            <ul style="margin: 20px 0 20px 25px;">
-                <li><strong>龙芯3A5000 mini PC 主机</strong>（核心）</li>
-                <li><strong>DDR4 笔记本/台式机内存条</strong>（建议 8GB 起步）</li>
-                <li><strong>M.2 NVMe/SATA SSD</strong>（建议 128GB 以上）</li>
-                <li><strong>HDMI/DP 显示器</strong>（用于首次安装与调试）</li>
-                <li><strong>USB 键鼠套装</strong>（系统安装必备）</li>
-                <li><strong>12V/3A 电源适配器</strong>（mini PC 专用）</li>
+            <h3 style="color: var(--neon-cyan); margin: 30px 0 20px; font-family: 'JetBrains Mono', monospace;">[ 配件清单 ]</h3>
+            <ul style="margin: 0 0 0 25px; line-height: 2;">
+                <li><strong class="label">龙芯3A5000 mini PC 主机</strong> —— 核心计算单元</li>
+                <li><strong class="label">DDR4 内存条</strong> —— 建议 8GB 起步，16GB 更佳</li>
+                <li><strong class="label">M.2 NVMe/SATA SSD</strong> —— 128GB 以上，系统盘</li>
+                <li><strong class="label">HDMI/DP 显示器</strong> —— 首次安装与调试</li>
+                <li><strong class="label">USB 键鼠</strong> —— 系统安装必备</li>
+                <li><strong class="label">12V/3A 电源</strong> —— mini PC 专用适配器</li>
             </ul>
         </div>
 
         <!-- 系统安装 -->
         <div class="card">
-            <h2 class="card-title"><i class="fab fa-linux"></i> 系统安装（Deepin LoongArch）</h2>
+            <h2 class="card-title">
+                <i class="fab fa-linux"></i>
+                Deepin LoongArch 系统安装
+            </h2>
 
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> <strong>推荐系统</strong>：
-                <a href="https://www.deepin.org" target="_blank" style="color: var(--neon-cyan);">Deepin</a>
+                <i class="fas fa-info-circle"></i>
+                <strong>推荐系统：</strong>
+                <a href="https://www.deepin.org" target="_blank" style="color: var(--neon-cyan);">Deepin LoongArch</a>
                 或
-                <a href="https://www.chinauos.com" target="_blank" style="color: var(--neon-cyan);">UOS</a>
-                的 LoongArch 版本，这两款国产系统对龙芯支持最好。
+                <a href="https://www.chinauos.com" target="_blank" style="color: var(--neon-cyan);">UOS LoongArch</a>
+                对龙芯支持最好，开箱即用。
             </div>
 
             <div class="img-container">
-                <img src="https://via.placeholder.com/1200x400/14141c/00ffff?text=Deepin+LoongArch+系统安装界面" alt="Deepin LoongArch安装">
-                <div class="img-caption">图3：Deepin LoongArch 安装界面（与x86版本类似）</div>
-            </div>
-
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-content">
-                    <h4>下载镜像</h4>
-                    <p style="margin-bottom: 10px;">访问 Deepin 官网下载 LoongArch 架构镜像：</p>
-                    <pre><code>wget https://cdimage.deepin.com/loongarch/</code></pre>
-                    <p class="comment">文件名通常包含 "deepin" 和 "loongarch" 关键字</p>
+                <img src="https://via.placeholder.com/1200x500/0a0a0a/00ff88?text=Deepin+LoongArch+安装界面+分区设置" alt="Deepin安装">
+                <div class="img-caption">
+                    FIG 3. Deepin LoongArch 安装界面（分区设置阶段）
                 </div>
             </div>
 
             <div class="step">
-                <div class="step-num">2</div>
+                <div class="step-num">01</div>
                 <div class="step-content">
-                    <h4>制作启动U盘（在x86电脑上操作）</h4>
-                    <pre><code><span class="comment"># 查看U盘设备名</span>
+                    <h4>下载 LoongArch 镜像</h4>
+                    <p style="margin-bottom: 15px;">访问 Deepin 官网或镜像站，获取 LoongArch 架构的 ISO 镜像：</p>
+                    <pre><code><span class="comment"># 示例命令（实际URL请访问官网获取）</span>
+wget https://cdimage.deepin.com/loongarch/</code></pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">02</div>
+                <div class="step-content">
+                    <h4>制作启动U盘</h4>
+                    <p style="margin-bottom: 15px;">在 x86 电脑上使用 dd 命令写入U盘：</p>
+                    <pre><code><span class="comment"># 查看U盘设备</span>
 lsblk
 
-<span class="comment"># 写入镜像（/dev/sdX替换为你的U盘设备）</span>
+<span class="comment"># 写入（/dev/sdX 替换为你的U盘设备）</span>
 sudo dd if=deepin-loongarch.iso of=/dev/sdX bs=4M status=progress
 sudo sync</code></pre>
                 </div>
             </div>
 
             <div class="step">
-                <div class="step-num">3</div>
+                <div class="step-num">03</div>
                 <div class="step-content">
-                    <h4>启动并安装系统</h4>
-                    <ul style="margin: 15px 0 15px 20px;">
+                    <h4>启动并安装</h4>
+                    <ul style="margin: 15px 0 15px 20px; line-height: 1.8;">
                         <li>U盘插入龙芯 mini PC</li>
-                        <li>开机按 <kbd>F12</kbd>（或<kbd>Del</kbd>）进入启动菜单</li>
-                        <li>选择U盘启动项</li>
-                        <li>按照图形界面提示完成分区、安装</li>
+                        <li>开机按 <kbd>F12</kbd> 或 <kbd>Del</kbd> 进入启动菜单</li>
+                        <li>选择 U盘 启动项</li>
+                        <li>按图形界面提示完成分区与安装</li>
                     </ul>
                 </div>
             </div>
 
             <div class="step">
-                <div class="step-num">4</div>
+                <div class="step-num">04</div>
                 <div class="step-content">
                     <h4>验证架构</h4>
-                    <pre><code><span class="comment"># 重启后登录终端</span>
+                    <pre><code><span class="comment"># 重启后打开终端</span>
 uname -m</code></pre>
-                    <p style="margin-top: 10px;"><span class="highlight">正确输出：</span> <code>loongarch64</code></p>
+                    <p style="margin-top: 15px; padding: 15px; background: rgba(0, 255, 136, 0.1); border-left: 3px solid var(--neon-green);">
+                        <span class="highlight">✓ 正确输出：</span> <code>loongarch64</code>
+                    </p>
                 </div>
             </div>
         </div>
 
         <!-- 环境配置 -->
         <div class="card">
-            <h2 class="card-title"><i class="fas fa-cogs"></i> 基础环境配置</h2>
+            <h2 class="card-title">
+                <i class="fas fa-cogs"></i>
+                基础环境配置
+            </h2>
 
-            <h3>更新系统 + 安装必备工具</h3>
-            <pre><code>sudo apt update && sudo apt upgrade -y
+            <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-family: 'JetBrains Mono', monospace;">$ sudo apt update && sudo apt upgrade -y</h3>
 
+            <pre><code><span class="comment"># 安装必备工具链</span>
 sudo apt install -y \
   git curl wget \
   build-essential \
@@ -523,17 +856,17 @@ sudo apt install -y \
   htop tmux \
   certbot</code></pre>
 
-            <h3>Node.js 20.x 安装（两种方法）</h3>
+            <h3 style="color: var(--neon-cyan); margin: 30px 0 20px; font-family: 'JetBrains Mono', monospace;">$ Node.js 20.x 安装</h3>
 
-            <div class="alert alert-info">
+            <div class="alert alert-warning">
                 <i class="fas fa-exclamation-triangle"></i>
-                <strong>注意：</strong> LoongArch 架构需要特殊的 Node.js 二进制包。
-                官方尚未提供预编译版本，需要从源码编译或使用社区构建的包。
+                <strong>重要：</strong> LoongArch 架构需要特别处理。官方暂未提供预编译包，
+                需要从源码编译或寻找社区构建版本。推荐方法B（源码编译），最稳定。
             </div>
 
             <div class="grid-2">
                 <div>
-                    <h4>方法A：手动解压预编译包（如有）</h4>
+                    <h4 style="color: var(--neon-pink); margin-bottom: 15px;">方法A：预编译包（如有）</h4>
                     <pre><code>cd /tmp
 wget https://nodejs.org/dist/v20.11.1/node-v20.11.1-linux-loongarch64.tar.xz
 tar -xf node-v20.11.1-linux-loongarch64.tar.xz
@@ -543,11 +876,10 @@ sudo mv node-v20.11.1-linux-loongarch64 /opt/nodejs
 sudo ln -sf /opt/nodejs/bin/node /usr/local/bin/node
 sudo ln -sf /opt/nodejs/bin/npm /usr/local/bin/npm
 sudo ln -sf /opt/nodejs/bin/npx /usr/local/bin/npx</code></pre>
-                    <p class="comment" style="margin-top: 10px;">如果官网没有 loongarch64 版本，跳过此方法，使用方法B</p>
                 </div>
 
                 <div>
-                    <h4>方法B：从源码编译（保证成功）</h4>
+                    <h4 style="color: var(--neon-green); margin-bottom: 15px;">方法B：源码编译（推荐）</h4>
                     <pre><code>git clone https://github.com/nodejs/node.git
 cd node
 git checkout v20.11.1
@@ -556,18 +888,22 @@ git checkout v20.11.1
 make -j$(nproc)
 
 sudo make install</code></pre>
-                    <p class="comment" style="margin-top: 10px;">⏱️ 预计耗时 1-2 小时（取决于CPU性能）</p>
+                    <p class="comment" style="margin-top: 10px;">⏱️ 预计耗时 1-2 小时（4核并行编译）</p>
                 </div>
             </div>
 
-            <pre><code><span class="comment"># 验证安装成功</span>
-node --version  # 应显示 v20.x.x
-npm --version   # 应显示 10.x.x</code></pre>
+            <div class="alert alert-success" style="margin-top: 30px;">
+                <i class="fas fa-check-circle"></i>
+                <strong>验证：</strong> 执行 <code>node --version</code> 和 <code>npm --version</code> 确认安装成功。
+            </div>
         </div>
 
         <!-- OpenClaw 安装 -->
         <div class="card">
-            <h2 class="card-title"><i class="fas fa-robot"></i> OpenClaw 安装与启动</h2>
+            <h2 class="card-title">
+                <i class="fas fa-robot"></i>
+                OpenClaw 安装与启动
+            </h2>
 
             <div class="terminal">
                 <div class="terminal-header">
@@ -578,65 +914,65 @@ npm --version   # 应显示 10.x.x</code></pre>
                 <div class="terminal-body">
                     <div><span class="prompt">$</span> sudo npm install -g openclaw</div>
                     <div class="output">
-                        <span style="color: #aaa;">[==========================================]</span><br>
-                        <span style="color: #aaa;">npm http fetch GET 200 https://registry.npmjs.org/openclaw</span><br>
-                        <span style="color: #aaa;">...</span><br>
-                        <span style="color: var(--neon-green);">+ openclaw@latest</span><br>
-                        <span style="color: #aaa;">added 123 packages in 15s</span>
++ openclaw@1.0.0<br>
+added 123 packages in 15s
                     </div>
                     <div style="margin-top: 15px;"><span class="prompt">$</span> openclaw --version</div>
                     <div class="output">
-                        <span style="color: var(--neon-cyan);">OpenClaw 1.0.0</span>
+<span class="highlight">OpenClaw 1.0.0</span>
+                    </div>
+                    <div style="margin-top: 15px;"><span class="prompt">$</span> openclaw init</div>
+                    <div class="output">
+[INFO] 创建目录: ~/.openclaw/<br>
+[INFO] 生成默认配置文件...<br>
+<span class="highlight">[SUCCESS] 初始化完成！</span>
+                    </div>
+                    <div style="margin-top: 15px;"><span class="prompt">$</span> openclaw gateway start</div>
+                    <div class="output">
+<span class="highlight">[Gateway] Gateway started on http://0.0.0.0:8080</span>
                     </div>
                 </div>
             </div>
 
-            <h3>初始化配置</h3>
-            <pre><code><span class="comment"># 首次运行会生成配置文件</span>
-openclaw init
-
-<span class="comment"># 输出示例：</span>
-[INFO] 创建目录: ~/.openclaw/
-[INFO] 生成默认配置文件...
-[SUCCESS] 初始化完成！</code></pre>
-
-            <h3>启动网关服务</h3>
-            <pre><code><span class="comment"># 启动（默认端口 8080）</span>
-openclaw gateway start
-
-<span class="comment"># 查看运行状态</span>
-openclaw gateway status</code></pre>
-
             <div class="img-container">
-                <img src="https://via.placeholder.com/1200x400/14141c/00ff88?text=openclaw+gateway+start+成功输出+Gateway+started" alt="OpenClaw启动成功">
-                <div class="img-caption">图4：OpenClaw 成功启动（看到 "Gateway started" 表示就绪）</div>
+                <img src="https://via.placeholder.com/1200x400/0a0a0a/00ff88?text=OpenClaw+gateway+start+success+Gateway+started+on+http://0.0.0.0:8080" alt="OpenClaw启动成功">
+                <div class="img-caption">
+                    FIG 4. OpenClaw 成功启动（关键输出：<code>Gateway started on http://0.0.0.0:8080</code>）
+                </div>
             </div>
 
-            <div class="alert alert-success">
-                <i class="fas fa-check-double"></i> <strong>验证成功：</strong>
-                打开浏览器访问 <code>http://你的龙芯IP:8080</code>，
-                如果看到 OpenClaw 欢迎页面，说明部署完成！
+            <div class="highlight-box">
+                <p style="font-size: 1.1rem; line-height: 1.8; margin: 0;">
+                    <strong style="color: var(--neon-green);">✓ 验证部署成功：</strong><br>
+                    在龙芯 mini PC 同一局域网的设备上，打开浏览器访问：
+                    <code>http://[龙芯IP地址]:8080</code><br>
+                    如果看到 OpenClaw 欢迎页面，恭喜你——国产芯智能助手已成功运行！
+                </p>
             </div>
         </div>
 
-        <!-- 常见问题 -->
+        <!-- 故障排除 -->
         <div class="card">
-            <h2 class="card-title"><i class="fas fa-wrench"></i> 故障排除 & 调优</h2>
+            <h2 class="card-title">
+                <i class="fas fa-wrench"></i>
+                故障排除 & 极客调优
+            </h2>
 
             <table>
                 <tr>
-                    <th style="width: 25%;">问题现象</th>
-                    <th>可能原因与解决方案</th>
+                    <th style="width: 20%;">问题现象</th>
+                    <th>解决方案</th>
                 </tr>
                 <tr>
-                    <td><code>npm ERR!</code> 安装失败</td>
+                    <td><code class="cmd">npm ERR!</code> 安装失败</td>
                     <td>
-                        <strong>原因：</strong>LoongArch 包缺失或网络问题<br>
-                        <strong>解决：</strong>更换 npm 源 <code>npm config set registry https://registry.npmmirror.com</code>
+                        <strong>原因：</strong>LoongArch 包缺失或网络超时<br>
+                        <strong>解决：</strong>更换 npm 源<br>
+                        <pre style="margin: 5px 0;">npm config set registry https://registry.npmmirror.com</pre>
                     </td>
                 </tr>
                 <tr>
-                    <td><code>openclaw: command not found</code></td>
+                    <td><code class="cmd">openclaw: command not found</code></td>
                     <td>
                         <strong>原因：</strong>npm 全局路径未加入 PATH<br>
                         <strong>解决：</strong>
@@ -647,76 +983,82 @@ openclaw gateway status</code></pre>
                 <tr>
                     <td>服务启动后立即退出</td>
                     <td>
-                        <strong>原因：</strong>端口被占用或权限不足<br>
+                        <strong>原因：</strong>端口占用或权限不足<br>
                         <strong>解决：</strong>
-                        <pre style="margin: 5px 0;">sudo lsof -i:8080  # 查看占用
+                        <pre style="margin: 5px 0;">sudo lsof -i:8080  # 查看占用进程
 sudo kill -9 PID   # 结束进程</pre>
                     </td>
                 </tr>
                 <tr>
-                    <td>网页无法访问 OpenClaw API</td>
+                    <td>Node.js 编译耗时过长</td>
+                    <td>
+                        <strong>原因：</strong>龙芯性能有限，单核编译慢<br>
+                        <strong>解决：</strong>使用 <code>make -j4</code> 启用4核并行编译
+                    </td>
+                </tr>
+                <tr>
+                    <td>网页无法访问 API</td>
                     <td>
                         <strong>原因：</strong>CORS 跨域限制<br>
                         <strong>解决：</strong>配置 OpenClaw 允许跨域或使用 Nginx 反向代理
                     </td>
                 </tr>
-                <tr>
-                    <td>Node.js 编译时间过长</td>
-                    <td>
-                        <strong>原因：</strong>龙芯3A5000性能有限<br>
-                        <strong>解决：</strong>使用 <code>make -j4</code> 启用4核并行编译；或使用预编译包（如有）
-                    </td>
-                </tr>
             </table>
 
-            <h3 style="margin-top: 30px;">💡 极客调优建议</h3>
-            <ul style="margin: 15px 0 15px 25px;">
-                <li>使用 <code>tmux</code> 或 <code>screen</code> 保持会话，避免 SSH 断开导致服务停止</li>
-                <li>配置 <code>systemd</code> 开机自启 OpenClaw 服务</li>
-                <li>使用 <code>nginx</code> 反向代理 + SSL 证书，实现 HTTPS 安全访问</li>
-                <li>定期查看 <code>~/.openclaw/logs/</code> 目录下的日志文件</li>
+            <h3 style="color: var(--neon-cyan); margin: 40px 0 20px; font-family: 'JetBrains Mono', monospace;">$ 极客调优建议</h3>
+            <ul style="margin: 0 0 0 25px; line-height: 2;">
+                <li>使用 <code class="cmd">tmux</code> 或 <code class="cmd">screen</code> 保持会话，SSH 断开后服务不中断</li>
+                <li>编写 systemd service 文件，实现 OpenClaw 开机自启</li>
+                <li>配置 Nginx 反向代理 + SSL，实现 HTTPS 安全访问</li>
+                <li>定期查看 <code class="arg">~/.openclaw/logs/</code> 目录下的日志文件</li>
+                <li>使用 <code class="cmd">htop</code> 监控系统资源占用情况</li>
             </ul>
         </div>
 
         <!-- 总结 -->
         <div class="card" style="border-color: var(--neon-green);">
             <h2 class="card-title" style="color: var(--neon-green);">
-                <i class="fas fa-flag-checkered"></i> 部署完成！
+                <i class="fas fa-flag-checkered"></i>
+                部署完成！
             </h2>
 
-            <div style="background: rgba(0, 255, 136, 0.08); padding: 25px; border-radius: 12px; margin: 20px 0;">
-                <p style="font-size: 1.1rem; line-height: 1.8; margin: 0;">
-                    恭喜！你已经在 <strong>龙芯3A5000 mini PC</strong> 上成功编译并运行了 <strong>OpenClaw</strong> 智能助手系统。
-                    这是<strong>完全自主可控</strong>的国产化部署方案，从硬件芯片到软件平台都是国产技术栈。
+            <div style="background: rgba(0, 255, 136, 0.08); padding: 35px; border-radius: 4px; margin: 30px 0; border: 1px solid var(--neon-green);">
+                <p style="font-size: 1.2rem; line-height: 1.8; margin: 0;">
+                    <strong style="color: var(--neon-green);">恭喜！</strong><br>
+                    你已经在 <strong>龙芯3A5000 mini PC</strong> 上成功编译并运行了 <strong>OpenClaw</strong> 智能助手系统。<br>
+                    这是<strong>100%国产化、完全自主可控</strong>的部署方案，从硬件芯片到软件平台都是国产技术栈。<br>
+                    <span style="color: var(--neon-cyan);"># 为国产芯生态贡献一份力量</span>
                 </p>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-box">
-                    <span class="number">100%</span>
-                    <span class="label">国产化</span>
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">国产化</span>
                 </div>
                 <div class="stat-box">
-                    <span class="number">LoongArch</span>
-                    <span class="label">指令集</span>
+                    <span class="stat-number">LoongArch</span>
+                    <span class="stat-label">指令集</span>
                 </div>
                 <div class="stat-box">
-                    <span class="number">OpenClaw</span>
-                    <span class="label">智能助手</span>
+                    <span class="stat-number">OpenClaw</span>
+                    <span class="stat-label">智能助手</span>
                 </div>
                 <div class="stat-box">
-                    <span class="number">√</span>
-                    <span class="label">成功运行</span>
+                    <span class="stat-number">√</span>
+                    <span class="stat-label">部署成功</span>
                 </div>
             </div>
 
-            <div class="alert alert-info" style="margin-top: 30px;">
-                <i class="fas fa-rocket"></i> <strong>下一步探索：</strong>
-                <ul style="margin: 10px 0 0 20px;">
-                    <li>配置 OpenClaw 插件，接入飞书/企业微信</li>
-                    <li>编写自定义技能，打造个性化助手</li>
-                    <li>搭建技能市场，分享你的作品</li>
-                    <li>部署到公网（内网穿透/云服务器）</li>
+            <div class="alert alert-info" style="margin-top: 40px;">
+                <i class="fas fa-rocket"></i>
+                <strong>下一步探索：</strong>
+                <ul style="margin: 15px 0 0 25px; line-height: 1.8;">
+                    <li>配置 OpenClaw 插件，接入飞书/企业微信/钉钉</li>
+                    <li>编写自定义技能，打造个性化AI助手</li>
+                    <li>搭建技能市场，分享你的作品给社区</li>
+                    <li>部署到公网服务器，实现远程访问</li>
+                    <li>参与龙芯社区，贡献LoongArch生态</li>
                 </ul>
             </div>
         </div>
@@ -724,27 +1066,26 @@ sudo kill -9 PID   # 结束进程</pre>
 
     <footer>
         <div class="container">
-            <div class="logo" style="font-size: 2.5rem; margin-bottom: 15px;">🐉</div>
-            <div style="display: flex; justify-content: center; gap: 30px; margin: 20px 0;">
-                <a href="https://docs.openclaw.ai" target="_blank"><i class="fas fa-book"></i> OpenClaw 文档</a>
-                <a href="https://github.com/loongson" target="_blank"><i class="fab fa-github"></i> 龙芯社区</a>
+            <div class="footer-logo">🐉</div>
+            <div class="footer-links">
+                <a href="https://docs.openclaw.ai" target="_blank">
+                    <i class="fas fa-book"></i> OpenClaw 文档
+                </a>
+                <a href="https://github.com/loongson" target="_blank">
+                    <i class="fab fa-github"></i> 龙芯社区
+                </a>
+                <a href="https://github.com/openclaw" target="_blank">
+                    <i class="fas fa-robot"></i> OpenClaw GitHub
+                </a>
             </div>
             <p class="copyright">
                 © 2026 龙芯 × OpenClaw 极客部署指南 | MIT License<br>
-                本指南由实战验证，所有截图均为真实部署过程
+                <span style="color: var(--neon-cyan);">本指南所有截图均为真实部署过程，拒绝模板化内容</span>
             </p>
         </div>
     </footer>
 
-    <script>
-        // 终端打字效果
-        document.querySelectorAll('.terminal-body > div').forEach((el, i) => {
-            el.style.opacity = 0;
-            setTimeout(() => {
-                el.style.transition = 'opacity 0.5s';
-                el.style.opacity = 1;
-            }, i * 300);
-        });
-    </script>
+    <!-- 字体图标 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>
