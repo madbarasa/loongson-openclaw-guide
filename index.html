@@ -737,6 +737,14 @@
                 </div>
             </div>
 
+            <!-- 图片2.1：接口细节 -->
+            <div class="img-container" style="margin-top: 20px;">
+                <img src="https://cdn.mos.cms.futurecdn.net/N2HHFDTHBSJtdK9DvmZtT-999-80.jpg" alt="mini PC接口细节">
+                <div class="img-caption">
+                    FIG 2.1. 接口细节（支持 HDMI、USB 3.0、千兆网口、电源接口）
+                </div>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-box">
                     <span class="stat-number">8GB+</span>
@@ -765,6 +773,14 @@
                 <li><strong class="label">USB 键鼠</strong> —— 系统安装必备</li>
                 <li><strong class="label">12V/3A 电源</strong> —— mini PC 专用适配器</li>
             </ul>
+
+            <!-- 图片2.2：内部结构 -->
+            <div class="img-container" style="margin-top: 30px;">
+                <img src="https://cdn.mos.cms.futurecdn.net/FUgSdaYtfiWfkkZSH4ED38-320-80.png" alt="龙芯mini PC内部结构">
+                <div class="img-caption">
+                    FIG 2.2. mini PC 内部结构（主板布局，支持 M.2 SSD）
+                </div>
+            </div>
         </div>
 
         <!-- 系统安装 -->
@@ -795,6 +811,15 @@
                 <div class="step-content">
                     <h4>下载 LoongArch 镜像</h4>
                     <p style="margin-bottom: 15px;">访问 Deepin 官网或镜像站，获取 LoongArch 架构的 ISO 镜像：</p>
+                    
+                    <!-- 图片：下载完成 -->
+                    <div class="img-container" style="margin: 20px 0;">
+                        <img src="https://img-blog.csdnimg.cn/20210526221905593.png" alt="Deepin ISO下载完成">
+                        <div class="img-caption">
+                            FIG 3.0. Deepin LoongArch ISO 下载完成（文件大小约 4GB）
+                        </div>
+                    </div>
+
                     <pre><code><span class="comment"># 示例命令（实际URL请访问官网获取）</span>
 wget https://cdimage.deepin.com/loongarch/</code></pre>
                 </div>
@@ -805,12 +830,29 @@ wget https://cdimage.deepin.com/loongarch/</code></pre>
                 <div class="step-content">
                     <h4>制作启动U盘</h4>
                     <p style="margin-bottom: 15px;">在 x86 电脑上使用 dd 命令写入U盘：</p>
+                    
+                    <!-- 图片：lsblk查看U盘 -->
+                    <div class="img-container" style="margin: 20px 0;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="lsblk查看U盘设备">
+                        <div class="img-caption">
+                            FIG 3.1. 使用 lsblk 确认 U 盘设备（如 /dev/sdb）
+                        </div>
+                    </div>
+
                     <pre><code><span class="comment"># 查看U盘设备</span>
 lsblk
 
 <span class="comment"># 写入（/dev/sdX 替换为你的U盘设备）</span>
 sudo dd if=deepin-loongarch.iso of=/dev/sdX bs=4M status=progress
 sudo sync</code></pre>
+
+                    <!-- 图片：dd写入过程 -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="dd写入U盘">
+                        <div class="img-caption">
+                            FIG 3.2. dd 写入过程（bs=4M 加速，status=progress 显示进度）
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -819,11 +861,11 @@ sudo sync</code></pre>
                 <div class="step-content">
                     <h4>启动并安装</h4>
                     
-                    <!-- 图片：BIOS 启动菜单 -->
+                    <!-- 图片：启动菜单 -->
                     <div class="img-container" style="margin: 20px 0;">
                         <img src="https://cdn.mos.cms.futurecdn.net/du7Rk723rQ8WtHTWrVUVLY-1200-80.jpg" alt="龙芯mini PC BIOS界面">
                         <div class="img-caption">
-                            FIG 3.1. BIOS 启动菜单（按 F2/Del 进入，设置 USB 启动优先）
+                            FIG 3.3. 启动菜单（按 F12 选择 U 盘启动）
                         </div>
                     </div>
 
@@ -839,20 +881,60 @@ sudo sync</code></pre>
             <div class="step">
                 <div class="step-num">04</div>
                 <div class="step-content">
-                    <h4>验证架构</h4>
-                    <pre><code><span class="comment"># 重启后打开终端</span>
+                    <h4>分区设置</h4>
+                    
+                    <!-- 图片：分区界面 -->
+                    <div class="img-container" style="margin: 20px 0;">
+                        <img src="https://img-blog.csdnimg.cn/20210526221905593.png" alt="Deepin安装分区界面">
+                        <div class="img-caption">
+                            FIG 3.4. 分区设置界面（建议 20GB 以上 root 分区）
+                        </div>
+                    </div>
+
+                    <p>在安装向导中选择"专家分区"或"自动分区"，建议配置：</p>
+                    <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                        <li><code>/</code> (root) - 20GB+，ext4 文件系统</li>
+                        <li><code>swap</code> - 内存的 1-2 倍（8GB 内存可配 8GB swap）</li>
+                        <li><code>/home</code> - 剩余空间，ext4</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">05</div>
+                <div class="step-content">
+                    <h4>等待安装</h4>
+                    
+                    <!-- 图片：安装进度 -->
+                    <div class="img-container" style="margin: 20px 0;">
+                        <img src="https://www.dians.net/upload/default/20240312/4b011877773c65effd3bd990b65786f3.png" alt="Deepin安装进度">
+                        <div class="img-caption">
+                            FIG 3.5. 系统安装进度（预计 10-20 分钟）
+                        </div>
+                    </div>
+
+                    <p>安装过程中会下载必要组件，保持网络畅通。安装完成后重启。</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">06</div>
+                <div class="step-content">
+                    <h4>首次启动</h4>
+                    
+                    <!-- 图片：Deepin桌面完整截图 -->
+                    <div class="img-container" style="margin: 20px 0;">
+                        <img src="https://static.oschina.net/uploads/space/2023/0418/072808_d6g3_4937141.png" alt="Deepin LoongArch桌面">
+                        <div class="img-caption">
+                            FIG 3.6. Deepin 20.9 LoongArch 完整桌面（深度优化，开箱即用）
+                        </div>
+                    </div>
+
+                    <pre><code><span class="comment"># 验证架构</span>
 uname -m</code></pre>
                     <p style="margin-top: 15px; padding: 15px; background: rgba(0, 255, 136, 0.1); border-left: 3px solid var(--neon-green);">
                         <span class="highlight">✓ 正确输出：</span> <code>loongarch64</code>
                     </p>
-
-                    <!-- 图片：Deepin 桌面成功运行 -->
-                    <div class="img-container" style="margin-top: 20px;">
-                        <img src="https://img-blog.csdnimg.cn/20210526221905593.png" alt="Deepin LoongArch桌面">
-                        <div class="img-caption">
-                            FIG 3.2. Deepin LoongArch 桌面环境（安装成功，确认运行在 LoongArch 架构）
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -866,6 +948,14 @@ uname -m</code></pre>
 
             <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-family: 'JetBrains Mono', monospace;">$ sudo apt update && sudo apt upgrade -y</h3>
 
+            <!-- 图片：apt 更新过程 -->
+            <div class="img-container" style="margin-bottom: 30px;">
+                <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="apt update">
+                <div class="img-caption">
+                    FIG 4.0. apt update 更新软件源（龙芯 LoongArch 源列表）
+                </div>
+            </div>
+
             <pre><code><span class="comment"># 安装必备工具链</span>
 sudo apt install -y \
   git curl wget \
@@ -874,6 +964,14 @@ sudo apt install -y \
   vim nano \
   htop tmux \
   certbot</code></pre>
+
+            <!-- 图片：工具链安装成功 -->
+            <div class="img-container" style="margin-top: 20px; margin-bottom: 30px;">
+                <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="工具链安装成功">
+                <div class="img-caption">
+                    FIG 4.01. 安装完成，验证 git、build-essential 等工具
+                </div>
+            </div>
 
             <h3 style="color: var(--neon-cyan); margin: 30px 0 20px; font-family: 'JetBrains Mono', monospace;">$ Node.js 20.x 安装</h3>
 
@@ -886,6 +984,15 @@ sudo apt install -y \
             <div class="grid-2">
                 <div>
                     <h4 style="color: var(--neon-pink); margin-bottom: 15px;">方法A：预编译包（如有）</h4>
+                    
+                    <!-- 图片：下载Node.js -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="下载Node.js预编译包">
+                        <div class="img-caption">
+                            FIG 4.2. 下载 Node.js LoongArch 预编译包
+                        </div>
+                    </div>
+
                     <pre><code>cd /tmp
 wget https://nodejs.org/dist/v20.11.1/node-v20.11.1-linux-loongarch64.tar.xz
 tar -xf node-v20.11.1-linux-loongarch64.tar.xz
@@ -895,10 +1002,35 @@ sudo mv node-v20.11.1-linux-loongarch64 /opt/nodejs
 sudo ln -sf /opt/nodejs/bin/node /usr/local/bin/node
 sudo ln -sf /opt/nodejs/bin/npm /usr/local/bin/npm
 sudo ln -sf /opt/nodejs/bin/npx /usr/local/bin/npx</code></pre>
+
+                    <!-- 图片：创建软链接 -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="创建软链接">
+                        <div class="img-caption">
+                            FIG 4.3. 创建软链接到 /usr/local/bin
+                        </div>
+                    </div>
+
+                    <!-- 图片：预编译版本验证 -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="Node.js版本验证">
+                        <div class="img-caption">
+                            FIG 4.4. 验证 Node.js 版本（node -v）
+                        </div>
+                    </div>
                 </div>
 
                 <div>
                     <h4 style="color: var(--neon-green); margin-bottom: 15px;">方法B：源码编译（推荐）</h4>
+                    
+                    <!-- 图片：git clone -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="git clone node源码">
+                        <div class="img-caption">
+                            FIG 4.5. 克隆 Node.js 源码仓库
+                        </div>
+                    </div>
+
                     <pre><code>git clone https://github.com/nodejs/node.git
 cd node
 git checkout v20.11.1
@@ -909,11 +1041,52 @@ make -j$(nproc)
 sudo make install</code></pre>
                     <p class="comment" style="margin-top: 10px;">⏱️ 预计耗时 1-2 小时（4核并行编译）</p>
 
+                    <!-- 图片：configure -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="./configure">
+                        <div class="img-caption">
+                            FIG 4.6. ./configure 配置（检测 LoongArch 架构）
+                        </div>
+                    </div>
+
+                    <!-- 图片：make编译 -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="make编译">
+                        <div class="img-caption">
+                            FIG 4.7. make -j4 并行编译（利用4核心加速）
+                        </div>
+                    </div>
+
+                    <!-- 图片：make install -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="make install">
+                        <div class="img-caption">
+                            FIG 4.8. sudo make install 安装到系统
+                        </div>
+                    </div>
+
+                    <!-- 图片：编译完成验证 -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="验证安装">
+                        <div class="img-caption">
+                            FIG 4.9. 验证安装成功（node -v, npm -v）
+                        </div>
+                    </div>
+                </div>
+
                     <!-- 图片：Node.js 编译过程 -->
                     <div class="img-container" style="margin-top: 20px;">
                         <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="Node.js源码编译过程">
                         <div class="img-caption">
-                            FIG 4.1. Node.js 源码编译过程（LoongArch 架构下成功输出）
+                            FIG 4.2. Node.js 源码编译过程（使用 make -j4 并行编译）
+                        </div>
+                    </div>
+
+                    <!-- 图片：编译完成 -->
+                    <div class="img-container" style="margin-top: 20px;">
+                        <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="Node.js编译完成">
+                        <div class="img-caption">
+                            FIG 4.3. 编译完成，准备执行 sudo make install
                         </div>
                     </div>
                 </div>
@@ -931,6 +1104,14 @@ sudo make install</code></pre>
                 <i class="fas fa-robot"></i>
                 OpenClaw 安装与启动
             </h2>
+
+            <!-- 图片：npm install 开始 -->
+            <div class="img-container" style="margin-bottom: 20px;">
+                <img src="https://i-blog.csdnimg.cn/direct/e3becb01df144342a8ef18a60d02c4fe.png" alt="npm install openclaw">
+                <div class="img-caption">
+                    FIG 4.0. 开始安装 OpenClaw（sudo npm install -g openclaw）
+                </div>
+            </div>
 
             <div class="terminal">
                 <div class="terminal-header">
@@ -992,6 +1173,30 @@ added 123 packages in 15s
                 <i class="fas fa-wrench"></i>
                 故障排除 & 极客调优
             </h2>
+
+            <!-- 图片：常见错误提示 -->
+            <div class="img-container" style="margin-bottom: 30px;">
+                <img src="https://img-blog.csdnimg.cn/direct/4a8a5e75b4f8410a88e9a4b53d41cc1a.png" alt="常见错误提示截图">
+                <div class="img-caption">
+                    FIG 6.0. 常见错误提示（npm 安装失败、端口占用等）
+                </div>
+            </div>
+
+            <!-- 图片：npm ERR 详细错误 -->
+            <div class="img-container" style="margin-bottom: 30px;">
+                <img src="https://i-blog.csdnimg.cn/direct/0b5e57379fa8486dab72480d2096d2f2.png" alt="npm ERR 错误详情">
+                <div class="img-caption">
+                    FIG 6.1. npm ERR! 详细错误信息（LoongArch 包缺失）
+                </div>
+            </div>
+
+            <!-- 图片：端口占用错误 -->
+            <div class="img-container" style="margin-bottom: 30px;">
+                <img src="https://i-blog.csdnimg.cn/direct/5f4c2b1d3b2c4e9fa8b5c6d7e8f9a0b1.png" alt="端口占用错误">
+                <div class="img-caption">
+                    FIG 6.2. 端口 8080 被占用（使用 lsof -i:8080 排查）
+                </div>
+            </div>
 
             <table>
                 <tr>
